@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { Worker, Job, Queue } from 'bullmq'
 import nodemailer from 'nodemailer'
-import IORedis from 'ioredis'
 
 import config from '../config'
 import { MailDTO } from '../dtos/MailDTO'
@@ -17,16 +16,8 @@ class UsersController {
         password
       }
 
-      const connection = new IORedis(
-        'redis://:Pz1d2djQzxRyneoVLePpYZh08IKVJvGt@redis-10499.c80.us-east-1-2.ec2.cloud.redislabs.com:10499'
-      )
-
-      // const queue = new Queue<MailDTO>(config.mail.queueName, {
-      //   connection: config.redis.connection
-      // })
-
       const queue = new Queue<MailDTO>(config.mail.queueName, {
-        connection
+        connection: config.redis.connection
       })
 
       await queue.add('send-simple', {
