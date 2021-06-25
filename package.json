@@ -5,7 +5,7 @@
   "license": "MIT",
   "prettier": "@lucas54neves/prettier-config",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "postinstall": "tsc",
     "dev": "ts-node-dev src/server.ts"
   },
