@@ -31,7 +31,7 @@ class UsersController {
         if (config.mail.smtp.host) {
           const transporter = nodemailer.createTransport(config.mail.smtp)
 
-          transporter.sendMail(job.data)
+          await transporter.sendMail(job.data)
         }
       })
 
