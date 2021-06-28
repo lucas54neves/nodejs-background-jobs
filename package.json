@@ -16,11 +16,13 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "ioredis": "^4.27.6",
+    "node-fetch": "^2.6.1",
     "nodemailer": "^6.6.2"
   },
   "devDependencies": {
     "@lucas54neves/prettier-config": "^1.0.1",
     "@types/express": "^4.17.12",
+    "@types/node-fetch": "^2.5.10",
     "@types/nodemailer": "^6.4.2",
     "@types/redis": "^2.8.30",
     "ts-node-dev": "^1.1.6",
