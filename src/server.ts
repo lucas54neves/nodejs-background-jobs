@@ -56,6 +56,22 @@ async function setupBullMQProcessor() {
     },
     { connection: redis }
   )
+
+  new Worker(
+    'delay',
+    async (job) => {
+      const responses = []
+
+      for (let i = 0; i < job.data.count; i++) {
+        responses.push(
+          await fetch(`http://httpbin.org/delay/${job.data.delay}`)
+        )
+      }
+
+      return responses
+    },
+    { connection: redis }
+  )
 }
 
 async function run() {
