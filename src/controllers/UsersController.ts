@@ -1,9 +1,10 @@
 import { Request, Response } from 'express'
 import { Worker, Job, Queue } from 'bullmq'
 import nodemailer from 'nodemailer'
+import Redis from 'ioredis'
 
 import config from '../config'
-import { MailDTO } from '../dtos/MailDTO'
+// import { MailDTO } from '../dtos/MailDTO'
 
 class UsersController {
   async sendMail(request: Request, response: Response): Promise<Response> {
@@ -16,9 +17,9 @@ class UsersController {
         password
       }
 
-      const queue = new Queue<MailDTO>(config.mail.queueName, {
-        connection: config.redis.connection
-      })
+      const redis = new Redis(process.env.REDIS_URL)
+
+      const queue = new Queue(config.mail.queueName, { connection: redis })
 
       await queue.add('send-simple', {
         from: 'Queue Test <queue@queuetest.com.br>',
@@ -27,13 +28,15 @@ class UsersController {
         to: `${user.name} <${user.email}>`
       })
 
-      const worker = new Worker(config.mail.queueName, async (job: Job) => {
-        if (config.mail.smtp.host) {
+      const worker = new Worker(
+        config.mail.queueName,
+        async (job) => {
           const transporter = nodemailer.createTransport(config.mail.smtp)
 
           transporter.sendMail(job.data)
-        }
-      })
+        },
+        { connection: redis }
+      )
 
       worker.on('completed', (job) => {
         console.log(
@@ -43,6 +46,14 @@ class UsersController {
 
       worker.on('failed', (job: Job, err: any) =>
         console.log(`Failed job ${job.id} with ${err}`)
+      )
+
+      worker.on('progress', (job: Job, err: any) =>
+        console.log(`Progress job ${job.id} with ${err}`)
+      )
+
+      worker.on('error', (job: Job, err: any) =>
+        console.log(`Error job ${job.id} with ${err}`)
       )
 
       return response.status(201).send()
